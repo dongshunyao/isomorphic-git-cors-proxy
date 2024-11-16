@@ -1,6 +1,6 @@
 'use strict'
 const url = require('url')
-const {send} = require('micro')
+const { send } = require('micro')
 const microCors = require('micro-cors')
 const fetch = require('node-fetch')
 
@@ -59,6 +59,7 @@ const filter = (predicate, middleware) => {
       next()
     }
   }
+
   return corsProxyMiddleware
 }
 
@@ -73,10 +74,11 @@ const compose = (...handlers) => {
         }
       })
     }
+
     return composed
   }
   let result = handlers.pop()
-  while(handlers.length) {
+  while (handlers.length) {
     result = composeTwo(handlers.pop(), result)
   }
   return result
@@ -92,6 +94,7 @@ module.exports = ({ origin, insecure_origins = [], authorization = noop } = {}) 
     // Not a git request, skip
     return allow(req, u)
   }
+
   function sendCorsOK (req, res, next) {
     // Handle CORS preflight request
     if (req.method === 'OPTIONS') {
@@ -100,9 +103,9 @@ module.exports = ({ origin, insecure_origins = [], authorization = noop } = {}) 
       next()
     }
   }
+
   function middleware (req, res, next) {
     let u = url.parse(req.url, true)
-
 
     let headers = {}
     for (let h of allowHeaders) {
@@ -113,17 +116,17 @@ module.exports = ({ origin, insecure_origins = [], authorization = noop } = {}) 
 
     // GitHub uses user-agent sniffing for git/* and changes its behavior which is frustrating
     if (!headers['user-agent'] || !headers['user-agent'].startsWith('git/')) {
-      headers['user-agent'] = 'git/@isomorphic-git/cors-proxy'
+      headers['user-agent'] = 'git/isomorphic-git-cors-proxy'
     }
 
     let p = u.path
     let parts = p.match(/\/([^\/]*)\/(.*)/)
-    let pathdomain = parts[1]
-    let remainingpath = parts[2]
-    let protocol = insecure_origins.includes(pathdomain) ? 'http' : 'https'
+    let pathDomain = parts[1]
+    let remainingPath = parts[2]
+    let protocol = insecure_origins.includes(pathDomain) ? 'http' : 'https'
 
     fetch(
-      `${protocol}://${pathdomain}/${remainingpath}`,
+      `${protocol}://${pathDomain}/${remainingPath}`,
       {
         method: req.method,
         redirect: 'manual',
@@ -148,10 +151,11 @@ module.exports = ({ origin, insecure_origins = [], authorization = noop } = {}) 
       }
       f.body.pipe(res)
     }).catch(e => {
-      console.error(e);
-      next();
-    });
+      console.error(e)
+      next()
+    })
   }
+
   const cors = microCors({
     allowHeaders,
     exposeHeaders,
